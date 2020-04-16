@@ -568,9 +568,9 @@ const createKarmaCoverage = (coverageThreshold) => {
     }
 
     coverageResults.report = `## Code Coverage Summary
-|    % Stmts    |    % Branch   |    % Funcs    |    % Lines    |
+| Statements | Branch | Functions | Lines |
 |---|---|---|---|
-| ${statements} | ${branches} | ${functions} | ${lines}         |      
+| ${statements} | ${branches} | ${functions} | ${lines}  |      
 `;
 
     return coverageResults;
