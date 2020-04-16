@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const fs = require('fs');
-const inspect = require('util');
+const util = require('util');
 
 const updateOrCreateComment = async (githubClient, commentId, body) => {
     const repoName = github.context.repo.repo;
@@ -81,6 +81,6 @@ const main = async () => {
 };
 
 main().catch((error) => {
-    core.debug(inspect(error));
+    core.debug(util.inspect(error));
     core.setFailed(error.message)
 });
