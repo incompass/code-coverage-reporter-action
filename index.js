@@ -27,7 +27,7 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
     }
 };
 
-const createKarmaCoverage = () => {
+const createKarmaCoverage = (coverageThreshold) => {
     const path = core.getInput('summary-path');
 
     const data = fs.readFileSync(
@@ -36,19 +36,28 @@ const createKarmaCoverage = () => {
     );
     const coverageJson = JSON.parse(data);
 
-    const statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`.padStart(13, ' ');
-    const branches = `${coverageJson.total.branches.pct}% (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`.padStart(13, ' ');
-    const functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`.padStart(13, ' ');
-    const lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`.padStart(13, ' ');
+    const statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`;
+    const branches = `${coverageJson.total.branches.pct}% (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`;
+    const functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`;
+    const lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`;
+
+    if (
+        coverageJson.total.statements.pct < coverageThreshold ||
+        coverageJson.total.branches.pct < coverageThreshold ||
+        coverageJson.total.functions.pct < coverageThreshold ||
+        coverageJson.total.lines.pct < coverageThreshold
+    ) {
+        core.setFailed('Your Code Coverage was below the threshold');
+    }
 
     return `## Code Coverage Summary
 |    % Stmts    |    % Branch   |    % Funcs    |    % Lines    |
-|---------------|---------------|---------------|---------------|
+|---|---|---|---|
 | ${statements} | ${branches} | ${functions} | ${lines}         |      
 `;
 };
 
-const createJestCoverage = () => {
+const createJestCoverage = (coverageThreshold) => {
     const testCommand = core.getInput('test-command') || 'npx jest --coverage';
     const codeCoverage = child_process.execSync(testCommand).toString();
     return `## Code Coverage Summary
@@ -62,6 +71,7 @@ const main = async () => {
     const prNumber = github.context.issue.number;
     const githubClient = new github.GitHub(githubToken);
     const testFramework = core.getInput('test-framework');
+    const coverageThreshold = parseInt(core.getInput('passing-threshold') || '80');
 
     // Only comment if we have a PR Number
     if (prNumber != null) {
@@ -83,11 +93,11 @@ const main = async () => {
         let commentBody = '';
         switch (testFramework) {
             case 'karma':
-                commentBody = createKarmaCoverage();
+                commentBody = createKarmaCoverage(coverageThreshold);
                 break;
 
             case 'jest':
-                commentBody = createJestCoverage();
+                commentBody = createJestCoverage(coverageThreshold);
                 break;
 
             default:
