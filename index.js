@@ -52,7 +52,8 @@ const createKarmaCoverage = () => {
 };
 
 const createJestCoverage = () => {
-    const codeCoverage = child_process.execSync('jest --coverage').toString();
+    const testCommand = core.getInput('test-command') || 'npx jest --coverage';
+    const codeCoverage = child_process.execSync(testCommand).toString();
     return `## Code Coverage Summary
     \`\`\`${codeCoverage}\`\`\``;
 };
