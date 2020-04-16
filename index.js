@@ -2,6 +2,7 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const fs = require('fs');
 const util = require('util');
+const child_process = require('child_process');
 
 const updateOrCreateComment = async (githubClient, commentId, body) => {
     const repoName = github.context.repo.repo;
@@ -51,10 +52,9 @@ const createKarmaCoverage = () => {
 };
 
 const createJestCoverage = () => {
+    const codeCoverage = child_process.execSync('jest --coverage').toString();
     return `## Code Coverage Summary
-    \`\`\`
-    Jest is coming soon!!
-    \`\`\``;
+    \`\`\`${codeCoverage}\`\`\``;
 };
 
 const main = async () => {

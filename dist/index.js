@@ -507,6 +507,7 @@ const core = __webpack_require__(470);
 const github = __webpack_require__(469);
 const fs = __webpack_require__(747);
 const util = __webpack_require__(669);
+const child_process = __webpack_require__(129);
 
 const updateOrCreateComment = async (githubClient, commentId, body) => {
     const repoName = github.context.repo.repo;
@@ -556,10 +557,9 @@ const createKarmaCoverage = () => {
 };
 
 const createJestCoverage = () => {
+    const codeCoverage = child_process.execSync('jest --coverage').toString();
     return `## Code Coverage Summary
-    \`\`\`
-    Jest is coming soon!!
-    \`\`\``;
+    \`\`\`${codeCoverage}\`\`\``;
 };
 
 const main = async () => {
