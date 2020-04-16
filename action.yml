@@ -1,0 +1,25 @@
+name: "Code Coverage Reporter"
+description: "Adds and updates a comment on a pull request with code coverage info"
+author: "Casechek"
+branding:
+  icon: "check-circle"
+  color: "green"
+inputs:
+  github-token:
+    description: "Github token"
+    required: true
+#  test-command:
+#    description: "Specify a command to run the tests"
+#    required: false
+  path:
+    description: 'Filepath to coverage-summary.json'
+    required: true
+outputs:
+  coverage:
+    description: "The test coverage report"
+runs:
+  using: "node12"
+  main: "index.js"
+
+
+

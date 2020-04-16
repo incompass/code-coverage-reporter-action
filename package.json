@@ -1,0 +1,26 @@
+{
+  "name": "code-coverage-reporter-action",
+  "version": "0.1.0",
+  "description": "Adds and updates a comment on a pull request with code coverage info",
+  "license": "ISC",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/incompass/code-coverage-reporter-action"
+  },
+  "keywords": [
+    "actions",
+    "pull-request",
+    "comment",
+    "message"
+  ],
+  "author": "Casechek",
+  "bugs": {
+    "url": "https://github.com/incompass/code-coverage-reporter-action/issues"
+  },
+  "homepage": "https://github.com/incompass/code-coverage-reporter-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.0",
+    "@actions/github": "^2.0.0"
+  }
+}
