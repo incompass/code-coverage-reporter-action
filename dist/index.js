@@ -534,6 +534,10 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
 
 const createKarmaCoverage = (coverageThreshold) => {
     const path = core.getInput('karma-summary-path');
+    let coverageResults = {
+        thresholds: true,
+        report: '',
+    };
 
     const data = fs.readFileSync(
         `${process.env.GITHUB_WORKSPACE}/${path}`,
@@ -541,32 +545,50 @@ const createKarmaCoverage = (coverageThreshold) => {
     );
     const coverageJson = JSON.parse(data);
 
-    const statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`;
-    const branches = `${coverageJson.total.branches.pct}% (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`;
-    const functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`;
-    const lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`;
+    let statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`;
+    let branches = `${coverageJson.total.branches.pct}% (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`;
+    let functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`;
+    let lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`;
 
-    if (
-        coverageJson.total.statements.pct < coverageThreshold ||
-        coverageJson.total.branches.pct < coverageThreshold ||
-        coverageJson.total.functions.pct < coverageThreshold ||
-        coverageJson.total.lines.pct < coverageThreshold
-    ) {
-        core.setFailed('Your Code Coverage was below the threshold');
+    if (coverageJson.total.statements.pct < coverageThreshold)  {
+        coverageResults.thresholds = false;
+        statements = `<span style="color:red">${statements}</span>`;
+    }
+    if (coverageJson.total.branches.pct < coverageThreshold)  {
+        coverageResults.thresholds = false;
+        branches = `<span style="color:red">${branches}</span>`;
+    }
+    if (coverageJson.total.functions.pct < coverageThreshold)  {
+        coverageResults.thresholds = false;
+        functions = `<span style="color:red">${functions}</span>`;
+    }
+    if (coverageJson.total.lines.pct < coverageThreshold)  {
+        coverageResults.thresholds = false;
+        lines = `<span style="color:red">${lines}</span>`;
     }
 
-    return `## Code Coverage Summary
+    coverageResults.report = `## Code Coverage Summary
 |    % Stmts    |    % Branch   |    % Funcs    |    % Lines    |
 |---|---|---|---|
 | ${statements} | ${branches} | ${functions} | ${lines}         |      
 `;
+
+    return coverageResults;
 };
 
 const createJestCoverage = (coverageThreshold) => {
     const testCommand = core.getInput('test-command') || 'npx jest --coverage';
+    let coverageResults = {
+        thresholds: true,
+        report: '',
+    };
+
     const codeCoverage = child_process.execSync(testCommand).toString();
-    return `## Code Coverage Summary
+
+    coverageResults.report =  `## Code Coverage Summary
 \`\`\`${codeCoverage}\`\`\``;
+
+    return coverageResults;
 };
 
 const main = async () => {
@@ -595,22 +617,32 @@ const main = async () => {
             commentId = existingComment.id;
         }
 
+        let coverageResults = null;
         let commentBody = '';
+
         switch (testFramework) {
             case 'karma':
-                commentBody = createKarmaCoverage(coverageThreshold);
+                coverageResults = createKarmaCoverage(coverageThreshold);
                 break;
 
             case 'jest':
-                commentBody = createJestCoverage(coverageThreshold);
+                coverageResults = createJestCoverage(coverageThreshold);
                 break;
 
             default:
-                commentBody = `Framework ${testFramework} not supported, sorry!`;
+                coverageResults = {
+                    thresholds: true,
+                    report:  `Framework ${testFramework} not supported, sorry!`,
+                };
                 break;
         }
+        commentBody = coverageResults.report;
 
         await updateOrCreateComment(githubClient, commentId, commentBody);
+
+        if (!coverageResults.thresholds) {
+            core.setFailed('Your Code Coverage was below the threshold');
+        }
     }
 };
 
