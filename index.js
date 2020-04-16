@@ -70,9 +70,9 @@ const main = async () => {
         const existingComment = issueResponse.data.find(function (comment) {
             return comment.user.type === 'Bot' && comment.body.indexOf('## Code Coverage Summary') === 0;
         });
-        // if (existingComment) {
-        //     await updateOrCreateComment(githubClient, false, existingComment.body);
-        // }
+        if (existingComment) {
+            await updateOrCreateComment(githubClient, false, existingComment.body + 'GOT THIS ONE!!');
+        }
         let commentId = false;
         if (existingComment && existingComment.id) {
             commentId = existingComment.id;
