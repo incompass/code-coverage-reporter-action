@@ -28,7 +28,7 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
 };
 
 const createKarmaCoverage = (coverageThreshold) => {
-    const path = core.getInput('karmna-summary-path');
+    const path = core.getInput('karma-summary-path');
 
     const data = fs.readFileSync(
         `${process.env.GITHUB_WORKSPACE}/${path}`,
