@@ -36,9 +36,9 @@ const createKarmaCoverage = () => {
     const coverageJson = JSON.parse(data);
 
     const statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`;
-    const branches = `${coverageJson.total.branches.pct}%   (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`;
-    const functions = `${coverageJson.total.functions.pct}%  (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`;
-    const lines = `${coverageJson.total.lines.pct}%      (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`;
+    const branches = `${coverageJson.total.branches.pct}% (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`;
+    const functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`;
+    const lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`;
 
     return `## Code Coverage Summary
 \`\`\`
