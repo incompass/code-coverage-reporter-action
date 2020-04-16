@@ -547,18 +547,17 @@ const createKarmaCoverage = () => {
     const lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`.padStart(13, ' ');
 
     return `## Code Coverage Summary
----------------|---------------|---------------|---------------
-    % Stmts    |    % Branch   |    % Funcs    |    % Lines  
----------------|---------------|---------------|---------------
- ${statements} | ${branches} | ${functions} | ${lines}                
----------------|---------------|---------------|---------------`;
+|    % Stmts    |    % Branch   |    % Funcs    |    % Lines    |
+|---------------|---------------|---------------|---------------|
+| ${statements} | ${branches} | ${functions} | ${lines}         |      
+`;
 };
 
 const createJestCoverage = () => {
     const testCommand = core.getInput('test-command') || 'npx jest --coverage';
     const codeCoverage = child_process.execSync(testCommand).toString();
     return `## Code Coverage Summary
-    ${codeCoverage}`;
+\`\`\`${codeCoverage}\`\`\``;
 };
 
 const main = async () => {
