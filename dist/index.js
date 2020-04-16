@@ -505,8 +505,8 @@ module.exports = require("os");
 
 const core = __webpack_require__(470);
 const github = __webpack_require__(469);
-const { fs } = __webpack_require__(747);
-const { inspect } = __webpack_require__(669);
+const fs = __webpack_require__(747);
+const util = __webpack_require__(669);
 
 const updateOrCreateComment = async (githubClient, commentId, body) => {
     const repoName = github.context.repo.repo;
@@ -586,7 +586,7 @@ const main = async () => {
 };
 
 main().catch((error) => {
-    core.debug(inspect(error));
+    core.debug(util.inspect(error));
     core.setFailed(error.message)
 });
 
