@@ -1,12 +1,12 @@
-const { core } = require('@actions/core');
-const { GitHub, context } = require('@actions/github');
+const core = require('@actions/core');
+const github = require('@actions/github');
 const { fs } = require('fs');
 const { inspect } = require('util');
 
 const updateOrCreateComment = async (githubClient, commentId, body) => {
-    const repoName = context.repo.repo;
-    const repoOwner = context.repo.owner;
-    const prNumber = context.issue.number;
+    const repoName = github.context.repo.repo;
+    const repoOwner = github.context.repo.owner;
+    const prNumber = github.context.issue.number;
 
     if (commentId) {
         await githubClient.issues.updateComment({
@@ -26,17 +26,38 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
     });
 };
 
+const createKarmaCoverage = () => {
+    const path = core.getInput('path');
+
+    const data = fs.readFileSync(
+        `${process.env.GITHUB_WORKSPACE}/${path}`,
+        "utf8"
+    );
+    const coverageJson = JSON.parse(data);
+
+    const statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`;
+    const branches = `${coverageJson.total.branches.pct}%   (${coverageJson.total.branches.covered}  /${coverageJson.total.branches.total})`;
+    const functions = `${coverageJson.total.functions.pct}%  (${coverageJson.total.functions.covered} /${coverageJson.total.functions.total})`;
+    const lines = `${coverageJson.total.lines.pct}%      (${coverageJson.total.lines.covered}     /${coverageJson.total.lines.total})`;
+
+    return `## Code Coverage Summary
+\`\`\`
+---------|----------|---------|---------
+ % Stmts | % Branch | % Funcs | % Lines  
+---------|----------|---------|---------
+${statements} | ${branches} | ${functions} | ${lines}                
+---------|----------|---------|---------
+\`\`\``;
+};
+
 const main = async () => {
-    const repoName = context.repo.repo;
-    const repoOwner = context.repo.owner;
+    const repoName = github.context.repo.repo;
+    const repoOwner = github.context.repo.owner;
     const githubToken = core.getInput('github-token');
-    const prNumber = context.issue.number;
-    const githubClient = new GitHub(githubToken);
-    const path = core.getInput("path");
+    const prNumber = github.context.issue.number;
+    const githubClient = new github.GitHub(githubToken);
 
-
-
-    // only comment if we have a prNumber
+    // Only comment if we have a PR Number
     if (prNumber != null) {
         const runningCommentBody = `## Code Coverage Summary`;
         const issueResponse = await githubClient.issues.listComments({
@@ -44,26 +65,16 @@ const main = async () => {
             repo        : repoName,
             owner       : repoOwner
         });
+        await updateOrCreateComment(githubClient, false, issueResponse.toString());
 
         const existingComment = issueResponse.data.find(function (comment) {
-            return comment.user.type === 'Bot' && comment.body.indexOf('<p>Total Coverage: <code>') === 0;
+            return comment.user.type === 'Bot' && comment.body.indexOf('## Code Coverage Summary') === 0;
         });
-
         let commentId = existingComment && existingComment.id;
         const response = await updateOrCreateComment(githubClient, commentId, runningCommentBody);
 
         commentId = response && response.data && response.data.id;
-        const data = fs.readFileSync(
-            `${process.env.GITHUB_WORKSPACE}/${inputs.path}`,
-            "utf8"
-        );
-        const json = JSON.parse(data);
-
-        const commentBody = `==== **Test Coverage** ====
-Statements: ${json.total.statements.pct}% ( ${json.total.statements.covered}/${json.total.statements.total} )
-Branches  : ${json.total.branches.pct}%   ( ${json.total.branches.covered}  /${json.total.branches.total} )
-Functions : ${json.total.functions.pct}%  ( ${json.total.functions.covered} /${json.total.functions.total} )
-Lines     : ${json.total.lines.pct}%      ( ${json.total.lines.covered}     /${json.total.lines.total} )`;
+        const commentBody = createKarmaCoverage();
 
         await updateOrCreateComment(githubClient, commentId, commentBody);
     }
