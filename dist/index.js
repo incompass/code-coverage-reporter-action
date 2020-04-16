@@ -570,18 +570,21 @@ const main = async () => {
             repo: repoName,
             owner: repoOwner
         });
-        await updateOrCreateComment(githubClient, false, JSON.stringify(issueResponse.data));
 
         const existingComment = issueResponse.data.find(function (comment) {
-            return comment.user.type === 'Bot' && comment.body.indexOf('<h2>Code Coverage Summary</h2>') === 0;
+            return comment.user.type === 'Bot' && comment.body.indexOf('## Code Coverage Summary') === 0;
         });
-        if (existingComment) {
-            await updateOrCreateComment(githubClient, false, existingComment.body);
+        // if (existingComment) {
+        //     await updateOrCreateComment(githubClient, false, existingComment.body);
+        // }
+        let commentId = false;
+        if (existingComment && existingComment.id) {
+            commentId = existingComment.id;
         }
-        let commentId = existingComment && existingComment.id;
-        const response = await updateOrCreateComment(githubClient, commentId, runningCommentBody);
-
-        commentId = response && response.data && response.data.id;
+        // let commentId = existingComment && existingComment.id;
+        // const response = await updateOrCreateComment(githubClient, commentId, runningCommentBody);
+        //
+        // commentId = response && response.data && response.data.id;
         const commentBody = createKarmaCoverage();
 
         await updateOrCreateComment(githubClient, commentId, commentBody);
