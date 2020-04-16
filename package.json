@@ -27,6 +27,12 @@
     "@actions/github": "^2.0.0"
   },
   "devDependencies": {
-    "@zeit/ncc": "0.22.0"
+    "@zeit/ncc": "^0.22.0",
+    "husky": "^4.2.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run package"
+    }
   }
 }
