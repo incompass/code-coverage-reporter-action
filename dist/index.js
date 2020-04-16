@@ -540,18 +540,18 @@ const createKarmaCoverage = () => {
     );
     const coverageJson = JSON.parse(data);
 
-    const statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`;
-    const branches = `${coverageJson.total.branches.pct}% (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`;
-    const functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`;
-    const lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`;
+    const statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`.padStart(14, ' ');
+    const branches = `${coverageJson.total.branches.pct}% (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`.padStart(14, ' ');
+    const functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`.padStart(14, ' ');
+    const lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`.padStart(14, ' ');
 
     return `## Code Coverage Summary
 \`\`\`
----------|----------|---------|---------
- % Stmts | % Branch | % Funcs | % Lines  
----------|----------|---------|---------
+---------------|---------------|---------------|---------------
+    % Stmts    |    % Branch   |    % Funcs    |    % Lines  
+---------------|---------------|---------------|---------------
 ${statements} | ${branches} | ${functions} | ${lines}                
----------|----------|---------|---------
+---------------|---------------|---------------|---------------
 \`\`\``;
 };
 
@@ -567,13 +567,12 @@ const main = async () => {
         const runningCommentBody = `## Code Coverage Summary`;
         const issueResponse = await githubClient.issues.listComments({
             issue_number: prNumber,
-            repo        : repoName,
-            owner       : repoOwner
+            repo: repoName,
+            owner: repoOwner
         });
-        await updateOrCreateComment(githubClient, false, issueResponse.toString());
 
         const existingComment = issueResponse.data.find(function (comment) {
-            return comment.user.type === 'Bot' && comment.body.indexOf('## Code Coverage Summary') === 0;
+            return comment.user.type === 'Bot' && comment.body.indexOf('<h2>Code Coverage Summary</h2>') !== false;
         });
         let commentId = existingComment && existingComment.id;
         const response = await updateOrCreateComment(githubClient, commentId, runningCommentBody);
