@@ -555,12 +555,20 @@ const createKarmaCoverage = () => {
 \`\`\``;
 };
 
+const createJestCoverage = () => {
+    return `## Code Coverage Summary
+    \`\`\`
+    Jest is coming soon!!
+    \`\`\``;
+};
+
 const main = async () => {
     const repoName = github.context.repo.repo;
     const repoOwner = github.context.repo.owner;
     const githubToken = core.getInput('github-token');
     const prNumber = github.context.issue.number;
     const githubClient = new github.GitHub(githubToken);
+    const testFramework = core.getInput('test-framework');
 
     // Only comment if we have a PR Number
     if (prNumber != null) {
@@ -579,7 +587,20 @@ const main = async () => {
             commentId = existingComment.id;
         }
 
-        const commentBody = createKarmaCoverage();
+        let commentBody = '';
+        switch (testFramework) {
+            case 'karma':
+                commentBody = createKarmaCoverage();
+                break;
+
+            case 'jest':
+                commentBody = createJestCoverage();
+                break;
+
+            default:
+                commentBody = `Framework ${testFramework} not supported, sorry!`;
+                break;
+        }
 
         await updateOrCreateComment(githubClient, commentId, commentBody);
     }
