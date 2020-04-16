@@ -45,21 +45,40 @@ const createKarmaCoverage = (coverageThreshold) => {
     let functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`;
     let lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`;
 
+    // Failed Threshold
     if (coverageJson.total.statements.pct < coverageThreshold)  {
         coverageResults.thresholds = false;
-        statements = `<span style="color:red">${statements}</span>`;
+        statements = `:thumbsdown: ${statements}`;
     }
     if (coverageJson.total.branches.pct < coverageThreshold)  {
         coverageResults.thresholds = false;
-        branches = `<span style="color:red">${branches}</span>`;
+        branches = `:thumbsdown: ${branches}`;
     }
     if (coverageJson.total.functions.pct < coverageThreshold)  {
         coverageResults.thresholds = false;
-        functions = `<span style="color:red">${functions}</span>`;
+        functions = `:thumbsdown: ${functions}`;
     }
     if (coverageJson.total.lines.pct < coverageThreshold)  {
         coverageResults.thresholds = false;
-        lines = `<span style="color:red">${lines}</span>`;
+        lines = `:thumbsdown: ${lines}`;
+    }
+
+    // Perfect 100%
+    if (coverageJson.total.statements.pct === 100)  {
+        coverageResults.thresholds = false;
+        statements = `:100: ${statements}`;
+    }
+    if (coverageJson.total.branches.pct === 100)  {
+        coverageResults.thresholds = false;
+        branches = `:100: ${branches}`;
+    }
+    if (coverageJson.total.functions.pct === 100)  {
+        coverageResults.thresholds = false;
+        functions = `:100: ${functions}`;
+    }
+    if (coverageJson.total.lines.pct === 100)  {
+        coverageResults.thresholds = false;
+        lines = `:100: ${lines}`;
     }
 
     coverageResults.report = `## Code Coverage Summary
