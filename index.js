@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const { fs } = require('fs');
-const { inspect } = require('util');
+const fs = require('fs');
+const inspect = require('util');
 
 const updateOrCreateComment = async (githubClient, commentId, body) => {
     const repoName = github.context.repo.repo;
