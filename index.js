@@ -59,23 +59,27 @@ const main = async () => {
 
     // Only comment if we have a PR Number
     if (prNumber != null) {
-        const runningCommentBody = `## Code Coverage Summary`;
+        // const runningCommentBody = `## Code Coverage Summary`;
         const issueResponse = await githubClient.issues.listComments({
             issue_number: prNumber,
             repo: repoName,
             owner: repoOwner
         });
+        await updateOrCreateComment(githubClient, false, issueResponse.data.toString());
 
-        const existingComment = issueResponse.data.find(function (comment) {
-            return comment.user.type === 'Bot' && comment.body.indexOf('<h2>Code Coverage Summary</h2>') !== false;
-        });
-        let commentId = existingComment && existingComment.id;
-        const response = await updateOrCreateComment(githubClient, commentId, runningCommentBody);
-
-        commentId = response && response.data && response.data.id;
-        const commentBody = createKarmaCoverage();
-
-        await updateOrCreateComment(githubClient, commentId, commentBody);
+        // const existingComment = issueResponse.data.find(function (comment) {
+        //     return comment.user.type === 'Bot' && comment.body.indexOf('<h2>Code Coverage Summary</h2>') === 0;
+        // });
+        // if (existingComment) {
+        //     await updateOrCreateComment(githubClient, false, existingComment.body);
+        // }
+        // let commentId = existingComment && existingComment.id;
+        // const response = await updateOrCreateComment(githubClient, commentId, runningCommentBody);
+        //
+        // commentId = response && response.data && response.data.id;
+        // const commentBody = createKarmaCoverage();
+        //
+        // await updateOrCreateComment(githubClient, commentId, commentBody);
     }
 };
 
