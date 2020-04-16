@@ -514,7 +514,6 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
     const prNumber = github.context.issue.number;
 
     if (commentId) {
-        body += 'Updated @ ' + new Date();
         await githubClient.issues.updateComment({
             issue_number: prNumber,
             comment_id: commentId,
@@ -522,14 +521,14 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
             owner: repoOwner,
             body: body,
         });
+    } else {
+        await githubClient.issues.createComment({
+            repo: repoName,
+            owner: repoOwner,
+            body: body,
+            issue_number: prNumber,
+        });
     }
-
-    await githubClient.issues.createComment({
-        repo: repoName,
-        owner: repoOwner,
-        body: body,
-        issue_number: prNumber,
-    });
 };
 
 const createKarmaCoverage = () => {
@@ -565,7 +564,6 @@ const main = async () => {
 
     // Only comment if we have a PR Number
     if (prNumber != null) {
-        // const runningCommentBody = `## Code Coverage Summary`;
         const issueResponse = await githubClient.issues.listComments({
             issue_number: prNumber,
             repo: repoName,
@@ -575,17 +573,12 @@ const main = async () => {
         const existingComment = issueResponse.data.find(function (comment) {
             return comment.user.type === 'Bot' && comment.body.indexOf('## Code Coverage Summary') === 0;
         });
-        if (existingComment) {
-            await updateOrCreateComment(githubClient, false, existingComment.body + 'GOT THIS ONE!!');
-        }
+
         let commentId = false;
         if (existingComment && existingComment.id) {
             commentId = existingComment.id;
         }
-        // let commentId = existingComment && existingComment.id;
-        // const response = await updateOrCreateComment(githubClient, commentId, runningCommentBody);
-        //
-        // commentId = response && response.data && response.data.id;
+
         const commentBody = createKarmaCoverage();
 
         await updateOrCreateComment(githubClient, commentId, commentBody);
