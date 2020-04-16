@@ -532,7 +532,7 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
 };
 
 const createKarmaCoverage = () => {
-    const path = core.getInput('path');
+    const path = core.getInput('summary-path');
 
     const data = fs.readFileSync(
         `${process.env.GITHUB_WORKSPACE}/${path}`,
