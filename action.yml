@@ -8,10 +8,7 @@ inputs:
   github-token:
     description: "Github token"
     required: true
-#  test-command:
-#    description: "Specify a command to run the tests"
-#    required: false
-  path:
+  summary-path:
     description: 'Filepath to coverage-summary.json'
     required: true
 outputs:
