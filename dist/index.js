@@ -514,6 +514,7 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
     const prNumber = github.context.issue.number;
 
     if (commentId) {
+        body += 'Updated @ ' + new Date();
         await githubClient.issues.updateComment({
             issue_number: prNumber,
             comment_id: commentId,
@@ -550,7 +551,7 @@ const createKarmaCoverage = () => {
 ---------------|---------------|---------------|---------------
     % Stmts    |    % Branch   |    % Funcs    |    % Lines  
 ---------------|---------------|---------------|---------------
-${statements} | ${branches} | ${functions} | ${lines}                
+ ${statements} | ${branches} | ${functions} | ${lines}                
 ---------------|---------------|---------------|---------------
 \`\`\``;
 };
