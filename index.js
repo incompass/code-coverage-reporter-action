@@ -27,8 +27,8 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
     }
 };
 
-const createKarmaCoverage = (coverageThreshold) => {
-    const path = core.getInput('karma-summary-path');
+const createCoverage = (coverageThreshold) => {
+    const path = core.getInput('summary-path');
     let coverageResults = {
         thresholds: true,
         report: '',
@@ -90,20 +90,21 @@ const createKarmaCoverage = (coverageThreshold) => {
     return coverageResults;
 };
 
-const createJestCoverage = (coverageThreshold) => {
-    const testCommand = core.getInput('test-command') || 'npx jest --coverage';
-    let coverageResults = {
-        thresholds: true,
-        report: '',
-    };
-
-    const codeCoverage = child_process.execSync(testCommand).toString();
-
-    coverageResults.report =  `## Code Coverage Summary
-\`\`\`${codeCoverage}\`\`\``;
-
-    return coverageResults;
-};
+// const createJestCoverage = (coverageThreshold) => {
+//     const path = core.getInput('summary-path');
+//     const testCommand = core.getInput('test-command') || 'npx jest --coverage';
+//     let coverageResults = {
+//         thresholds: true,
+//         report: '',
+//     };
+//
+//     const codeCoverage = child_process.execSync(testCommand).toString();
+//
+//     coverageResults.report =  `## Code Coverage Summary
+// \`\`\`${codeCoverage}\`\`\``;
+//
+//     return coverageResults;
+// };
 
 const main = async () => {
     const repoName = github.context.repo.repo;
@@ -136,11 +137,11 @@ const main = async () => {
 
         switch (testFramework) {
             case 'karma':
-                coverageResults = createKarmaCoverage(coverageThreshold);
+                coverageResults = createCoverage(coverageThreshold);
                 break;
 
             case 'jest':
-                coverageResults = createJestCoverage(coverageThreshold);
+                coverageResults = createCoverage(coverageThreshold);
                 break;
 
             default:

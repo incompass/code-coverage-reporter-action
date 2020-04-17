@@ -14,8 +14,8 @@ inputs:
   passing-threshold:
     description: '% the coverage needs to be to pass the step, defaults to 80'
     required: false
-  karma-summary-path:
-    description: 'Filepath to Karma coverage-summary.json'
+  summary-path:
+    description: 'Filepath to the coverage json file'
     required: false
   jest-test-command:
     description: 'Command to run Jest test coverage, defaults to "jest --coverage"'
