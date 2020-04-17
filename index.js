@@ -60,7 +60,7 @@ const createCoverage = () => {
         thresholds: true,
         report: '',
     };
-    coverageJson.total.forEach((item, key) => {
+    Array.from(coverageJson.total).forEach((item, key) => {
         // Get all the coverage values into human readable strings
         coverageString = `${item.pct}% (${item.covered}/${item.total})`;
 
