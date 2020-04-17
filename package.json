@@ -4,6 +4,9 @@
   "description": "Adds and updates a comment on a pull request with code coverage info",
   "license": "ISC",
   "main": "index.js",
+  "scripts": {
+    "package": "ncc build index.js -o dist"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/incompass/code-coverage-reporter-action"
@@ -22,5 +25,14 @@
   "dependencies": {
     "@actions/core": "^1.2.0",
     "@actions/github": "^2.0.0"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.0",
+    "husky": "^4.2.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run package && git add ./dist/index.js"
+    }
   }
 }
