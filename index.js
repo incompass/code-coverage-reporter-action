@@ -65,19 +65,15 @@ const createCoverage = (coverageThreshold) => {
 
     // Perfect 100%
     if (coverageJson.total.statements.pct === 100)  {
-        coverageResults.thresholds = false;
         statements = `:100: ${statements}`;
     }
     if (coverageJson.total.branches.pct === 100)  {
-        coverageResults.thresholds = false;
         branches = `:100: ${branches}`;
     }
     if (coverageJson.total.functions.pct === 100)  {
-        coverageResults.thresholds = false;
         functions = `:100: ${functions}`;
     }
     if (coverageJson.total.lines.pct === 100)  {
-        coverageResults.thresholds = false;
         lines = `:100: ${lines}`;
     }
 
