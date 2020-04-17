@@ -132,15 +132,15 @@ const main = async () => {
             commentId = existingComment.id;
         }
 
-        let coverageResults = null;
-        let commentBody = '';
-
+        let coverageResults;
         switch (testFramework) {
             case 'karma':
                 coverageResults = createCoverage(coverageThreshold);
                 break;
 
             case 'jest':
+                const testCommand = core.getInput('test-command') || 'npx jest --coverage';
+                child_process.execSync(testCommand);
                 coverageResults = createCoverage(coverageThreshold);
                 break;
 
@@ -151,7 +151,7 @@ const main = async () => {
                 };
                 break;
         }
-        commentBody = coverageResults.report;
+        const commentBody = coverageResults.report;
 
         await updateOrCreateComment(githubClient, commentId, commentBody);
 
