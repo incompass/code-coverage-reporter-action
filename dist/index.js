@@ -532,25 +532,42 @@ const updateOrCreateComment = async (githubClient, commentId, body) => {
     }
 };
 
-const createCoverage = (coverageThreshold) => {
-    const path = core.getInput('summary-path');
-    let coverageResults = {
-        thresholds: true,
-        report: '',
-    };
+const createCoverage = () => {
+    // Check this is a supported framework
+    const testFramework = core.getInput('test-framework');
+    if (!['jest', 'karma'].includes(testFramework)) {
+        return {
+            thresholds: true,
+            report:  `Framework ${testFramework} not supported, sorry!`,
+        };
+    }
 
+    const path = core.getInput('summary-path');
+    const coverageThreshold = parseInt(core.getInput('passing-threshold') || '80');
+    const testCommand = core.getInput('test-command');
+
+    // Run the test suite with coverage
+    child_process.execSync(testCommand);
+
+    // Read the coverage report
     const data = fs.readFileSync(
         `${process.env.GITHUB_WORKSPACE}/${path}`,
         "utf8"
     );
     const coverageJson = JSON.parse(data);
 
+    // Get all the coverage values into human readable strings
     let statements = `${coverageJson.total.statements.pct}% (${coverageJson.total.statements.covered}/${coverageJson.total.statements.total})`;
     let branches = `${coverageJson.total.branches.pct}% (${coverageJson.total.branches.covered}/${coverageJson.total.branches.total})`;
     let functions = `${coverageJson.total.functions.pct}% (${coverageJson.total.functions.covered}/${coverageJson.total.functions.total})`;
     let lines = `${coverageJson.total.lines.pct}% (${coverageJson.total.lines.covered}/${coverageJson.total.lines.total})`;
 
-    // Failed Threshold
+    let coverageResults = {
+        thresholds: true,
+        report: '',
+    };
+
+    // Add thumbs down and mark tests as failed if anything is below threshold
     if (coverageJson.total.statements.pct < coverageThreshold)  {
         coverageResults.thresholds = false;
         statements = `:thumbsdown: ${statements}`;
@@ -568,7 +585,7 @@ const createCoverage = (coverageThreshold) => {
         lines = `:thumbsdown: ${lines}`;
     }
 
-    // Perfect 100%
+    // Give anything that passed 100% an extra special emoji
     if (coverageJson.total.statements.pct === 100)  {
         statements = `:100: ${statements}`;
     }
@@ -582,6 +599,7 @@ const createCoverage = (coverageThreshold) => {
         lines = `:100: ${lines}`;
     }
 
+    // Create the markdown for the comment
     coverageResults.report = `## Code Coverage Summary
 | Statements | Branch | Functions | Lines |
 |---|---|---|---|
@@ -597,49 +615,34 @@ const main = async () => {
     const githubToken = core.getInput('github-token');
     const prNumber = github.context.issue.number;
     const githubClient = new github.GitHub(githubToken);
-    const testFramework = core.getInput('test-framework');
-    const coverageThreshold = parseInt(core.getInput('passing-threshold') || '80');
 
     // Only comment if we have a PR Number
     if (prNumber != null) {
+        // Get all the existing PR comments
         const issueResponse = await githubClient.issues.listComments({
             issue_number: prNumber,
             repo: repoName,
             owner: repoOwner
         });
 
+        // Find the first comment that starts with '## Code Coverage Summary'
         const existingComment = issueResponse.data.find(function (comment) {
             return comment.user.type === 'Bot' && comment.body.indexOf('## Code Coverage Summary') === 0;
         });
 
+        // If we find a comment, get the id
         let commentId = false;
         if (existingComment && existingComment.id) {
             commentId = existingComment.id;
         }
 
-        let coverageResults;
-        switch (testFramework) {
-            case 'karma':
-                coverageResults = createCoverage(coverageThreshold);
-                break;
-
-            case 'jest':
-                const testCommand = core.getInput('test-command') || 'npx jest --coverage';
-                child_process.execSync(testCommand);
-                coverageResults = createCoverage(coverageThreshold);
-                break;
-
-            default:
-                coverageResults = {
-                    thresholds: true,
-                    report:  `Framework ${testFramework} not supported, sorry!`,
-                };
-                break;
-        }
+        // Create the coverage comment markdown
+        const coverageResults = createCoverage();
         const commentBody = coverageResults.report;
 
         await updateOrCreateComment(githubClient, commentId, commentBody);
 
+        // Fail the step if the thresholds were not met
         if (!coverageResults.thresholds) {
             core.setFailed('Your Code Coverage was below the threshold');
         }

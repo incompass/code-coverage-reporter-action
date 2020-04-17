@@ -16,10 +16,10 @@ inputs:
     required: false
   summary-path:
     description: 'Filepath to the coverage json file'
-    required: false
-  jest-test-command:
-    description: 'Command to run Jest test coverage, defaults to "jest --coverage"'
-    required: false
+    required: true
+  test-command:
+    description: 'Command to run for test coverage, e.g. "jest --coverage" or "xvfb-run --auto-servernum ng test --watch=false --codeCoverage'
+    required: true
 outputs:
   coverage:
     description: 'The test coverage report'
