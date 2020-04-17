@@ -86,22 +86,6 @@ const createCoverage = (coverageThreshold) => {
     return coverageResults;
 };
 
-// const createJestCoverage = (coverageThreshold) => {
-//     const path = core.getInput('summary-path');
-//     const testCommand = core.getInput('test-command') || 'npx jest --coverage';
-//     let coverageResults = {
-//         thresholds: true,
-//         report: '',
-//     };
-//
-//     const codeCoverage = child_process.execSync(testCommand).toString();
-//
-//     coverageResults.report =  `## Code Coverage Summary
-// \`\`\`${codeCoverage}\`\`\``;
-//
-//     return coverageResults;
-// };
-
 const main = async () => {
     const repoName = github.context.repo.repo;
     const repoOwner = github.context.repo.owner;
