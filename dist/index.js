@@ -556,7 +556,8 @@ const createCoverage = () => {
     );
     const coverageJson = JSON.parse(data);
 
-    let coverageString = '';
+    let coverageItem;
+    let coverageString;
     let coverageResults = {
         statements: '',
         branches: '',
@@ -565,18 +566,20 @@ const createCoverage = () => {
         thresholds: true,
         report: '',
     };
-    coverageJson.total.forEach((item, key) => {
+    Object.keys(coverageJson.total).forEach(function (key) {
+        coverageItem = coverageJson.total[key];
+
         // Get all the coverage values into human readable strings
-        coverageString = `${item.pct}% (${item.covered}/${item.total})`;
+        coverageString = `${coverageItem.pct}% (${coverageItem.covered}/${coverageItem.total})`;
 
         // Add thumbs down and mark tests as failed if anything is below threshold
-        if (item.pct < coverageThreshold)  {
+        if (coverageItem.pct < coverageThreshold)  {
             coverageResults.thresholds = false;
             coverageString = `:thumbsdown: ${coverageString}`;
         }
 
         // Give anything that passed 100% an extra special emoji
-        if (item.pct === 100)  {
+        if (coverageItem.pct === 100)  {
             coverageString = `:100: ${coverageString}`;
         }
 
